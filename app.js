@@ -51,32 +51,58 @@ const spiral=(n)=>{
         //it proceeds diagonally in odd perfect squares
         let terminus
         let row=-1
-        let prevVal=nums.at(-dim-1)
         let offSetL=0
         let counter=0
-        let currentSquare
-        console.log("currentInd",prevVal)
+        let currentSquare=dim+2
+        const centerline=Math.floor(dim/2)
         const arr=[]
         for(let i=0;i<n;i++){
             if(i%dim===0){
                 row++
                 counter=0
-                currentSquare=dim-(2*row)
-                terminus=Math.pow(currentSquare,2)+1
-                console.log("current square:",currentSquare,"terminus: ",terminus)
-                offSetL=i+i/dim-1
+                currentSquare=currentSquare+(2*(row>centerline?1:-1))
+                terminus=row<=centerline?Math.pow(currentSquare,2)+1:arr.at(-(dim-row))+1
+                
+                offSetL=i+(row<=centerline?row-1:dim-row-2)
+                console.log("current square:",currentSquare,"terminus: ",terminus,"offset: ",offSetL)
             }
-            console.log("offSet",i,offSetL)
-            const currentVal=(i>offSetL&&currentSquare+counter<=terminus)?terminus-currentSquare+counter:arr.at(-dim)+(currentSquare+counter<terminus?-1:1)
+            let currentVal
+            if(row<=centerline){
+                if(i>offSetL&&(terminus-currentSquare+counter)<=terminus) {
+                    console.log(currentSquare+counter,terminus,terminus-currentSquare+counter)
+                    currentVal=terminus-currentSquare+counter
+                    if(currentVal>n) currentVal=null
+                }
+                else {
+                    currentVal=arr.at(-dim)+((terminus-currentSquare+counter)<terminus?-1:1)
+                    console.log("exceeded terminus",i)
+                }
+                if(i>offSetL)counter++
+            }
+            else{
+                // console.log(i,currentSquare-1-counter)
+                if(i>offSetL && terminus+currentSquare-1-counter>=terminus){
+                    currentVal=terminus+currentSquare-1-counter
+                    counter++
+                }
+                else{
+                    console.log("other side of offset",i)
+                    currentVal=arr.at(-dim)+(terminus+currentSquare-1-counter<terminus?1:-1)
+                }
+                // if(i>offSetL&&currentSquare+counter<=terminus)
+                // if(i>offSetL)counter--
+
+            }
+
+            // const currentVal=(i>offSetL&&currentSquare+counter<=terminus)?terminus-currentSquare+counter:arr.at(-dim)+(currentSquare+counter<terminus?-1:1)
             arr.push(currentVal)
-            prevVal=currentVal
-            if(i>offSetL)counter++
+            // if(i>offSetL)counter++
             // console.log(currentVal)
             // console.log("remainder",i,i%5)
 
         }
         const arrs=[]
-        while(arr.length)arrs.push(arr.splice(0,5))
+        while(arr.length)arrs.push(arr.splice(0,dim))
         console.log(arrs)
     }
     buildSequence()
