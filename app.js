@@ -1,130 +1,76 @@
-// console.log("hello world")
 
-// console.log(encodeURIComponent("#"))
-// console.log(encodeURIComponent("@"))
-// console.log(encodeURIComponent("!@#$%^&(){}[]`~"))
-// console.log(encodeURI("!@#$%^&(){}[]`~"))
+/*
+script to generate a counter-clockwise spiral of numbers with 1 at the center.
 
+e.g.
 
+21	22	23	24	25
+20	7	8	9	10
+19	6	1	2	11
+18	5	4	3	12
+17	16	15	14	13
 
+*/ 
 
-// const arr=["!","@","#","$","%","^","&","(",")","{","}","[","]","`","~"]
-
-// arr.forEach(char=>{
-//     console.log(encodeURI(char))
-
-//     // console.log(`specialChars.put("${encodeURIComponent(char)}","${char}");`)
-// })
-
-// const obj={str:""}
-// console.log(obj.str?"yes":"no") 
-
-
-// async function func(){
-//     await setTimeout(()=>{},500)
-    
-// }
-
-
-// const arr1=[1,2,3,4]
-// const arr2=[4,5,6]
-
-// console.log(arr1,arr2)
-
-// console.log([1,2,3,4].some(elem=>arr2.includes(elem)))
-
-
-// const arr=[...Array(100).keys()].map(ind=>Math.log(ind+1))
-
-// console.log(arr)
-// console.log(arr.findIndex(item=>item>4.5))
-
-// let n=25
 
 const spiral=(n)=>{
-    const nums=Array.from(Array(n).keys()).map(i=>i+1)
     const dim = Math.ceil(Math.sqrt(n))
-    const center=Math.floor(n/2)
-    const onePos = Math.floor(n/2)
-    const offSet = n%2?0:1
+    //sequence is a one-dimensional array representing a square grid with dimensions dim x dim indexed increasing left to right
+    const sequence=[]
     const buildSequence=()=>{
-        //it proceeds diagonally in odd perfect squares
         let terminus
         let row=-1
         let offSetL=0
         let counter=0
+        //currentSquare refers to root of perfect squares, which extend diagonally upward from the center: 3,5,7,... 
         let currentSquare=dim+2
         const centerline=Math.floor(dim/2)
-        const arr=[]
+
+        let currentVal
         for(let i=0;i<n;i++){
+            currentVal=null
             if(i%dim===0){
                 row++
                 counter=0
                 currentSquare=currentSquare+(2*(row>centerline?1:-1))
-                terminus=row<=centerline?Math.pow(currentSquare,2)+1:arr.at(-(dim-row))+1
-                
-                offSetL=i+(row<=centerline?row-1:dim-row-2)
+                terminus=row<=centerline?Math.pow(currentSquare,2)+1:sequence.at(-(dim-row))+1
+                offSetL=i+centerline-Math.abs(centerline-row)-1
                 console.log("current square:",currentSquare,"terminus: ",terminus,"offset: ",offSetL)
             }
-            let currentVal
+
             if(row<=centerline){
                 if(i>offSetL&&(terminus-currentSquare+counter)<=terminus) {
                     console.log(currentSquare+counter,terminus,terminus-currentSquare+counter)
                     currentVal=terminus-currentSquare+counter
+                    counter++
                     if(currentVal>n) currentVal=null
                 }
-                else {
-                    currentVal=arr.at(-dim)+((terminus-currentSquare+counter)<terminus?-1:1)
-                    console.log("exceeded terminus",i)
-                }
-                if(i>offSetL)counter++
             }
             else{
-                // console.log(i,currentSquare-1-counter)
                 if(i>offSetL && terminus+currentSquare-1-counter>=terminus){
                     currentVal=terminus+currentSquare-1-counter
                     counter++
                 }
-                else{
-                    console.log("other side of offset",i)
-                    currentVal=arr.at(-dim)+(terminus+currentSquare-1-counter<terminus?1:-1)
-                }
-                // if(i>offSetL&&currentSquare+counter<=terminus)
-                // if(i>offSetL)counter--
-
             }
-
-            // const currentVal=(i>offSetL&&currentSquare+counter<=terminus)?terminus-currentSquare+counter:arr.at(-dim)+(currentSquare+counter<terminus?-1:1)
-            arr.push(currentVal)
-            // if(i>offSetL)counter++
-            // console.log(currentVal)
-            // console.log("remainder",i,i%5)
+            if(!currentVal)currentVal=sequence[i-dim]+(i%dim<centerline?-1:1)
+            sequence.push(currentVal)
 
         }
-        const arrs=[]
-        while(arr.length)arrs.push(arr.splice(0,dim))
-        console.log(arrs)
+        
     }
     buildSequence()
-    const print=()=>console.log(n)
+    const print=()=>{
+        const arrs=[]
+        const seqCopy=[...sequence]
+        while(seqCopy.length)arrs.push(seqCopy.splice(0,dim))
+        console.log(arrs)
+    }
     return{
-        nums,
-        dim,
-        center,
-        onePos,
         print,
-        buildSequence
+        sequence
     }
 
 }
 
 const test=spiral(25)
 test.print()
-// test.buildSequence()
-// console.log(test.buildSequence)
-console.log(test.nums[test.center])
-// console.log(newSpiral.printSpiral())
-
-// const closure=(x)=>enclosed=(y)=>(y+x)
-
-// console.log(closure(1)(2))
