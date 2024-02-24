@@ -14,46 +14,63 @@ e.g.
 
 
 const spiral=(n)=>{
-    const dim = Math.ceil(Math.sqrt(n))
+    const sqrt=Math.ceil(Math.sqrt(n))
+    const dim = sqrt%2===0?sqrt+1:sqrt
+    console.log(dim)
     const centerline=Math.floor(dim/2)
-    let row,offSetL,offSetR,counter,currentSquare,terminus,currentVal,northAxis
+    let row,offSetL,offSetR,counter,currentRoot,terminus,northAxis,tail
     //sequence is a one-dimensional array with length n representing a square grid with dimensions dim x dim indexed increasing left to right
     const sequence=[]
-    const initSpiral=()=>{
+    const initState=()=>{
         row=0
         offSetL=-1
         offSetR=dim+1
         counter=0
-        //currentSquare refers to root of perfect squares, which extend diagonally upward from the center: 3,5,7,... 
-        currentSquare=dim
-        terminus=Math.pow(currentSquare,2)+1
-        currentVal
+        //currentRoot refers to root of perfect squares, which extend diagonally upward from the center: 3,5,7,... 
+        currentRoot=dim
+        terminus=Math.pow(currentRoot,2)+1
         northAxis=true
+        tail=Math.pow(dim,2)
     }
-
     const iterateRow=()=>{
         row++
         counter=0
         northAxis=row<=centerline
-        currentSquare=currentSquare+(2*(northAxis?-1:1))
-        terminus=northAxis?Math.pow(currentSquare,2)+1:sequence.at(-(dim-row))+1
+        currentRoot=currentRoot+(2*(northAxis?-1:1))
+        const oneUp=sequence.at(-(dim-row))
+        terminus=northAxis?Math.pow(currentRoot,2)+1:oneUp?oneUp+1:null
         offSetL+=(dim+(northAxis?1:-1))
         offSetR+=(dim+(row===centerline+1?0:northAxis?-1:1))
     }
     const getVal=(i)=>{
-        if(i<=offSetL || i>=offSetR) return sequence.at(-dim)+(i%dim<centerline?-1:1);
-        if(northAxis) return terminus-currentSquare+counter
-        return terminus+currentSquare-1-counter
+        if(i<=offSetL || i>=offSetR) {
+            const westAxis=i%dim<centerline
+            if(sequence.at(-dim))return sequence.at(-dim)+(westAxis?-1:1);
+            return tail
+        }
+        if(!terminus)return null
+        if(!isNaN(tail) && tail===0) return n
+        if(northAxis) return terminus-currentRoot+counter
+        return terminus+currentRoot-1-counter
+    }
+    const trimSeq=()=>{
+        if(sequence[0]===null)sequence.splice(0,dim)
     }
     const buildSequence=()=>{
-        initSpiral()
-        for(let i=0;i<n;i++){
-            currentVal=null
+        initState()
+        for(let i=0;i<Math.pow(dim,2);i++){
             if(i && i%dim===0)iterateRow()
             const val=getVal(i)
             if(i>offSetL && i<offSetR)counter++
-            sequence.push(val)
+            if(val<=n){
+                sequence.push(val)
+            }
+            else{
+                sequence.push(null)
+                tail--
+            }
         }
+        trimSeq()
     }
     buildSequence()
     const print=()=>{
@@ -67,5 +84,5 @@ const spiral=(n)=>{
     }
 }
 
-const test=spiral(25)
+const test=spiral(18)
 test.print()
