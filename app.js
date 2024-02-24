@@ -15,61 +15,52 @@ e.g.
 
 const spiral=(n)=>{
     const dim = Math.ceil(Math.sqrt(n))
-    //sequence is a one-dimensional array representing a square grid with dimensions dim x dim indexed increasing left to right
+    const centerline=Math.floor(dim/2)
+    //sequence is a one-dimensional array with length n representing a square grid with dimensions dim x dim indexed increasing left to right
     const sequence=[]
     const buildSequence=()=>{
-        let terminus
-        let row=-1
-        let offSetL=0
+        let row=0
+        let offSetL=-1
+        let offSetR=dim+1
         let counter=0
         //currentSquare refers to root of perfect squares, which extend diagonally upward from the center: 3,5,7,... 
-        let currentSquare=dim+2
-        const centerline=Math.floor(dim/2)
-
+        let currentSquare=dim
+        let terminus=Math.pow(currentSquare,2)+1
         let currentVal
+        let northAxis=true
         for(let i=0;i<n;i++){
             currentVal=null
-            if(i%dim===0){
+            if(i && i%dim===0){
                 row++
                 counter=0
-                currentSquare=currentSquare+(2*(row>centerline?1:-1))
-                terminus=row<=centerline?Math.pow(currentSquare,2)+1:sequence.at(-(dim-row))+1
-                offSetL=i+centerline-Math.abs(centerline-row)-1
-                console.log("current square:",currentSquare,"terminus: ",terminus,"offset: ",offSetL)
+                northAxis=row<=centerline
+                currentSquare=currentSquare+(2*(northAxis?-1:1))
+                terminus=northAxis?Math.pow(currentSquare,2)+1:sequence.at(-(dim-row))+1
+                offSetL+=(dim+(northAxis?1:-1))
+                offSetR+=(dim+(row===centerline+1?0:northAxis?-1:1))
             }
-
-            if(row<=centerline){
-                if(i>offSetL&&(terminus-currentSquare+counter)<=terminus) {
-                    console.log(currentSquare+counter,terminus,terminus-currentSquare+counter)
-                    currentVal=terminus-currentSquare+counter
-                    counter++
-                    if(currentVal>n) currentVal=null
-                }
+            if(i<=offSetL || i>=offSetR){
+                currentVal=sequence.at(-dim)+(i%dim<centerline?-1:1)
+                sequence.push(currentVal)
+                continue
             }
-            else{
-                if(i>offSetL && terminus+currentSquare-1-counter>=terminus){
-                    currentVal=terminus+currentSquare-1-counter
-                    counter++
-                }
-            }
-            if(!currentVal)currentVal=sequence[i-dim]+(i%dim<centerline?-1:1)
+            
+            if(northAxis) currentVal=terminus-currentSquare+counter
+            else currentVal=terminus+currentSquare-1-counter
             sequence.push(currentVal)
-
+            counter++
         }
-        
     }
     buildSequence()
     const print=()=>{
-        const arrs=[]
-        const seqCopy=[...sequence]
-        while(seqCopy.length)arrs.push(seqCopy.splice(0,dim))
-        console.log(arrs)
+        let start=0
+        while(start<sequence.length)
+        console.log(sequence.slice(start,start+=dim))
     }
     return{
         print,
         sequence
     }
-
 }
 
 const test=spiral(25)
