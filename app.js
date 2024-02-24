@@ -16,7 +16,6 @@ e.g.
 const spiral=(n)=>{
     const sqrt=Math.ceil(Math.sqrt(n))
     const dim = sqrt%2===0?sqrt+1:sqrt
-    console.log(dim)
     const centerline=Math.floor(dim/2)
     let row,offSetL,offSetR,counter,currentRoot,terminus,northAxis,tail
     //sequence is a one-dimensional array with length n representing a square grid with dimensions dim x dim indexed increasing left to right
@@ -55,6 +54,7 @@ const spiral=(n)=>{
     }
     const trimSeq=()=>{
         if(sequence[0]===null)sequence.splice(0,dim)
+        if(sequence.at(-1)===null)sequence.splice(-dim,dim)
     }
     const buildSequence=()=>{
         initState()
@@ -76,7 +76,7 @@ const spiral=(n)=>{
     const print=()=>{
         let start=0
         while(start<sequence.length)
-        console.log(sequence.slice(start,start+=dim))
+        console.log(sequence.slice(start,start+=dim).map(n => !n?"#":n).join("\t"))
     }
     return{
         print,
@@ -84,5 +84,5 @@ const spiral=(n)=>{
     }
 }
 
-const test=spiral(18)
+const test=spiral(17)
 test.print()
