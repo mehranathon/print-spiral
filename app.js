@@ -1,6 +1,6 @@
 
 /*
-script to generate a counter-clockwise spiral of numbers with 1 at the center.
+script to generate a clockwise spiral of numbers with 1 at the center.
 
 e.g.
 
@@ -48,7 +48,6 @@ const spiral=(n)=>{
             return tail
         }
         if(!terminus)return null
-        if(!isNaN(tail) && tail===0) return n
         if(northAxis) return terminus-currentRoot+counter
         return terminus+currentRoot-1-counter
     }
@@ -84,5 +83,5 @@ const spiral=(n)=>{
     }
 }
 
-const test=spiral(17)
+const test=spiral(25)
 test.print()
