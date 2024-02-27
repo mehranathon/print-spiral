@@ -1,104 +1,88 @@
-// console.log("hello world")
 
-// console.log(encodeURIComponent("#"))
-// console.log(encodeURIComponent("@"))
-// console.log(encodeURIComponent("!@#$%^&(){}[]`~"))
-// console.log(encodeURI("!@#$%^&(){}[]`~"))
+/*
+script to generate a counter-clockwise spiral of numbers with 1 at the center.
 
+e.g.
 
+21	22	23	24	25
+20	7	8	9	10
+19	6	1	2	11
+18	5	4	3	12
+17	16	15	14	13
 
+*/ 
 
-// const arr=["!","@","#","$","%","^","&","(",")","{","}","[","]","`","~"]
-
-// arr.forEach(char=>{
-//     console.log(encodeURI(char))
-
-//     // console.log(`specialChars.put("${encodeURIComponent(char)}","${char}");`)
-// })
-
-// const obj={str:""}
-// console.log(obj.str?"yes":"no") 
-
-
-// async function func(){
-//     await setTimeout(()=>{},500)
-    
-// }
-
-
-// const arr1=[1,2,3,4]
-// const arr2=[4,5,6]
-
-// console.log(arr1,arr2)
-
-// console.log([1,2,3,4].some(elem=>arr2.includes(elem)))
-
-
-// const arr=[...Array(100).keys()].map(ind=>Math.log(ind+1))
-
-// console.log(arr)
-// console.log(arr.findIndex(item=>item>4.5))
-
-// let n=25
 
 const spiral=(n)=>{
-    const nums=Array.from(Array(n).keys()).map(i=>i+1)
-    const dim = Math.ceil(Math.sqrt(n))
-    const center=Math.floor(n/2)
-    const onePos = Math.floor(n/2)
-    const offSet = n%2?0:1
-    const buildSequence=()=>{
-        //it proceeds diagonally in odd perfect squares
-        let terminus
-        let row=-1
-        let prevVal=nums.at(-dim-1)
-        let offSetL=0
-        let counter=0
-        let currentSquare
-        console.log("currentInd",prevVal)
-        const arr=[]
-        for(let i=0;i<n;i++){
-            if(i%dim===0){
-                row++
-                counter=0
-                currentSquare=dim-(2*row)
-                terminus=Math.pow(currentSquare,2)+1
-                console.log("current square:",currentSquare,"terminus: ",terminus)
-                offSetL=i+i/dim-1
-            }
-            console.log("offSet",i,offSetL)
-            const currentVal=(i>offSetL&&currentSquare+counter<=terminus)?terminus-currentSquare+counter:arr.at(-dim)+(currentSquare+counter<terminus?-1:1)
-            arr.push(currentVal)
-            prevVal=currentVal
-            if(i>offSetL)counter++
-            // console.log(currentVal)
-            // console.log("remainder",i,i%5)
-
+    const sqrt=Math.ceil(Math.sqrt(n))
+    const dim = sqrt%2===0?sqrt+1:sqrt
+    const centerline=Math.floor(dim/2)
+    let row,offSetL,offSetR,counter,currentRoot,terminus,northAxis,tail
+    //sequence is a one-dimensional array with length n representing a square grid with dimensions dim x dim indexed increasing left to right
+    const sequence=[]
+    const initState=()=>{
+        row=0
+        offSetL=-1
+        offSetR=dim+1
+        counter=0
+        //currentRoot refers to root of perfect squares, which extend diagonally upward from the center: 3,5,7,... 
+        currentRoot=dim
+        terminus=Math.pow(currentRoot,2)+1
+        northAxis=true
+        tail=Math.pow(dim,2)
+    }
+    const iterateRow=()=>{
+        row++
+        counter=0
+        northAxis=row<=centerline
+        currentRoot=currentRoot+(2*(northAxis?-1:1))
+        const oneUp=sequence.at(-(dim-row))
+        terminus=northAxis?Math.pow(currentRoot,2)+1:oneUp?oneUp+1:null
+        offSetL+=(dim+(northAxis?1:-1))
+        offSetR+=(dim+(row===centerline+1?0:northAxis?-1:1))
+    }
+    const getVal=(i)=>{
+        if(i<=offSetL || i>=offSetR) {
+            const westAxis=i%dim<centerline
+            if(sequence.at(-dim))return sequence.at(-dim)+(westAxis?-1:1);
+            return tail
         }
-        const arrs=[]
-        while(arr.length)arrs.push(arr.splice(0,5))
-        console.log(arrs)
+        if(!terminus)return null
+        if(!isNaN(tail) && tail===0) return n
+        if(northAxis) return terminus-currentRoot+counter
+        return terminus+currentRoot-1-counter
+    }
+    const trimSeq=()=>{
+        if(sequence[0]===null)sequence.splice(0,dim)
+        if(sequence.at(-1)===null)sequence.splice(-dim,dim)
+    }
+    const buildSequence=()=>{
+        initState()
+        for(let i=0;i<Math.pow(dim,2);i++){
+            if(i && i%dim===0)iterateRow()
+            const val=getVal(i)
+            if(i>offSetL && i<offSetR)counter++
+            if(val<=n){
+                sequence.push(val)
+            }
+            else{
+                sequence.push(null)
+                tail--
+            }
+        }
+        trimSeq()
     }
     buildSequence()
-    const print=()=>console.log(n)
-    return{
-        nums,
-        dim,
-        center,
-        onePos,
-        print,
-        buildSequence
+    const print=()=>{
+        let start=0
+        while(start<sequence.length)
+        console.log(sequence.slice(start,start+=dim).map(n => !n?"#":n).join("\t"))
     }
-
+    return{
+        print,
+        sequence
+    }
 }
 
-const test=spiral(25)
+const test=spiral(17)
 test.print()
-// test.buildSequence()
-// console.log(test.buildSequence)
-console.log(test.nums[test.center])
-// console.log(newSpiral.printSpiral())
-
-// const closure=(x)=>enclosed=(y)=>(y+x)
-
-// console.log(closure(1)(2))
