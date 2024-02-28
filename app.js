@@ -17,27 +17,31 @@ const spiral=(n)=>{
     const sqrt=Math.ceil(Math.sqrt(n))
     const dim = sqrt%2===0?sqrt+1:sqrt
     const centerline=Math.floor(dim/2)
-    let row,offSetL,offSetR,counter,currentRoot,terminus,northAxis,tail
+    let row,offSetL,offSetR,counter,currentRoot,prevRoot,diagonal,northAxis,tail
     //sequence is a one-dimensional array with length n representing a square grid with dimensions dim x dim indexed increasing left to right
     const sequence=[]
     const initState=()=>{
         row=0
-        offSetL=-1
-        offSetR=dim+1
-        counter=0
+        northAxis=true
+        counter=1
         //currentRoot refers to root of perfect squares, which extend diagonally upward from the center: 3,5,7,... 
         currentRoot=dim
-        terminus=Math.pow(currentRoot,2)+1
-        northAxis=true
+        diagonal=Math.pow(currentRoot,2)
+        //values increment or decrement sequentially towards the diagonal until they hit the left and right offsets
+        //these are the left and right edges of the current spiral
+        offSetL=-1
+        offSetR=dim+1
+        //tail starts at closest perfect square to n and decrements towards n
         tail=Math.pow(dim,2)
+        
     }
-    const iterateRow=()=>{
+    const incrementRow=()=>{
         row++
-        counter=0
+        counter=1
         northAxis=row<=centerline
+        prevRoot=currentRoot
         currentRoot=currentRoot+(2*(northAxis?-1:1))
-        const oneUp=sequence.at(-(dim-row))
-        terminus=northAxis?Math.pow(currentRoot,2)+1:oneUp?oneUp+1:null
+        diagonal=northAxis?Math.pow(currentRoot,2):prevRoot*currentRoot-currentRoot+3
         offSetL+=(dim+(northAxis?1:-1))
         offSetR+=(dim+(row===centerline+1?0:northAxis?-1:1))
     }
@@ -47,18 +51,17 @@ const spiral=(n)=>{
             if(sequence.at(-dim))return sequence.at(-dim)+(westAxis?-1:1);
             return tail
         }
-        if(!terminus)return null
-        if(northAxis) return terminus-currentRoot+counter
-        return terminus+currentRoot-1-counter
+        return diagonal+(currentRoot-counter)*(northAxis?-1:1)
     }
     const trimSeq=()=>{
+        //remove empty rows
         if(sequence[0]===null)sequence.splice(0,dim)
         if(sequence.at(-1)===null)sequence.splice(-dim,dim)
     }
     const buildSequence=()=>{
         initState()
         for(let i=0;i<Math.pow(dim,2);i++){
-            if(i && i%dim===0)iterateRow()
+            if(i && i%dim===0)incrementRow()
             const val=getVal(i)
             if(i>offSetL && i<offSetR)counter++
             if(val<=n){
@@ -73,15 +76,19 @@ const spiral=(n)=>{
     }
     buildSequence()
     const print=()=>{
+        //the intent was to generate a one-dimensional array with null at empty positions for imperfect squares
+        //alternatively could have pushed str "#" to avoid .map() below or printed one string per row to avoid array altogether
         let start=0
         while(start<sequence.length)
         console.log(sequence.slice(start,start+=dim).map(n => !n?"#":n).join("\t"))
     }
+    const getSequence=()=>[...sequence]
     return{
-        print,
-        sequence
+        dim,
+        getSequence,
+        print
     }
 }
 
-const test=spiral(25)
+const test=spiral(49)
 test.print()
